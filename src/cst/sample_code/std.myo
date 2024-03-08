@@ -1,5 +1,3 @@
-// Start std.myo
-
 in std
 
 extern struct U8[]
@@ -115,12 +113,20 @@ extern fun F64.to_u16(self) -> Option<U16>
 extern fun F64.to_u32(self) -> Option<U32>
 extern fun F64.to_uint(self) -> Option<Uint>
 
-extern struct Bool[]
-
-extern true: Bool
-extern false: Bool
-
 extern struct String[]
+extern fun String.len(self) -> Uint
+extern fun String.is_empty(self) -> Bool
+extern fun String.contains(self, substr: String) -> Bool
+extern fun String.starts_with(self, prefix: String) -> Bool
+extern fun String.ends_with(self, suffix: String) -> Bool
+extern fun String.find(self, substr: String) -> Option<Uint>
+extern fun String.split(self, delimiter: String) -> Vec<String>
+extern fun String.to_uppercase(self) -> String
+extern fun String.to_lowercase(self) -> String
+extern fun String.trim(self) -> String
+extern fun String.slice(self, start_byte: Uint, end_byte: Uint) -> Option<String>
+extern fun String.slice_to_end(self, start_byte: Uint) -> Option<String>
+extern fun String.concat(self, other: String) -> String
 
 extern struct Option<T>
 extern Option.none<T>: Option<T>
@@ -181,6 +187,7 @@ fun Result.unwrap_error_or_else<T, E>(self<T, E>, f: Fun(T) -> E) -> E {
     self.elim(identity, f)
 }
 
+struct Unit
 struct Tup2<A, B>[e0: A, e1: B]
 struct Tup3[A, B, C][e0: A, e1: B, e2: C]
 struct Tup4[A, B, C, D][e0: A, e1: B, e2: C, e3: D]
@@ -188,6 +195,21 @@ struct Tup5[A, B, C, D, E][e0: A, e1: B, e2: C, e3: D, e4: E]
 struct Tup6[A, B, C, D, E, F][e0: A, e1: B, e2: C, e3: D, e4: E, e5: F]
 struct Tup7[A, B, C, D, E, F, G][e0: A, e1: B, e2: C, e3: D, e4: E, e5: F, e6: G]
 struct Tup8[A, B, C, D, E, F, G, H][e0: A, e1: B, e2: C, e3: D, e4: E, e5: F, e6: G, e7: H]
+
+extern struct Bool
+extern Bool.true: Bool
+extern Bool.false: Bool
+extern fun Bool.not(self) -> Bool
+extern fun Bool.and(self, right: Bool) -> Bool
+extern fun Bool.or(self, right: Bool) -> Bool
+extern fun Bool.xor(self, right: Bool) -> Bool
+extern fun Bool.eq(self, right: Bool) -> Bool
+fun Bool.op==(self, right: Bool) -> Bool {
+    self.eq(right)
+}
+fun Bool.op!=(self, right: Bool) -> Bool {
+    self.xor(right)
+}
 
 extern struct Vec<T>[]
 // TODO implement Vec functions
@@ -197,6 +219,8 @@ fun identity<T>(x: T) -> T {
 }
 
 in std.math
+
+use std.*
 
 extern fun I8.op+(self, right: I8) -> I8
 extern fun I8.op-(self, right: I8) -> I8
@@ -268,227 +292,10 @@ extern fun Radians.cos(self) -> F64
 extern fun Radians.sin(self) -> F64
 extern fun Radians.tan(self) -> F64
 
-extern fun F32.acos(self) -> math.Radians
-extern fun F32.asin(self) -> math.Radians
-extern fun F32.atan(self) -> math.Radians
+extern fun F32.acos(self) -> Radians
+extern fun F32.asin(self) -> Radians
+extern fun F32.atan(self) -> Radians
 
-extern fun F64.acos(self) -> math.Radians
-extern fun F64.asin(self) -> math.Radians
-extern fun F64.atan(self) -> math.Radians
-
-// End std.myo
-
-// Start canvas.myo
-
-in canvas
-
-use std.*
-
-extern struct Io<T>[]
-
-extern fun Io.ok<T>(raw: T) -> canvas.Io<T>
-
-fun Io.pure<T>(raw: T) -> canvas.Io<T> {
-    Io.ok(raw)
-}
-
-extern fun Io.error<T>(message: String) -> canvas.Io<T>
-
-extern fun Io.then<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U>
-
-fun Io.op=@<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U> {
-    self.then(f)
-}
-
-extern width: Io<Uint>
-
-extern height: Io<Uint>
-
-extern time: Io<Seconds>
-
-struct Seconds[e0: F64]
-
-extern random: Io<F64>
-
-extern fun is_keydown(key: String) -> Io<Bool>
-
-// End canvas.myo
-
-in app
-
-use std.*
-
-struct State[
-    dimensions: Tup2<Uint, Uint>,
-    ball_topleft: Tup2<Int, Int>,
-    ball_radius: Uint,
-    left_paddle_top: Int,
-    right_paddle_top: Int,
-    paddle_margin: Uint,
-    paddle_dimensions: Tup2<Uint, Uint>,
-    left_score: Uint,
-    right_score: Uint,
-    time: canvas.Seconds,
-    ball_vx: PixelsPerSecond,
-    ball_vy: PixelsPerSecond,
-    left_paddle_up_key_down: Bool,
-    left_paddle_down_key_down: Bool,
-    right_paddle_up_key_down: Bool,
-    right_paddle_down_key_down: Bool,
-]
-
-struct PixelsPerSecond[e0: F64]
-
-fun PixelsPerSecond.op*(self, right: Seconds) -> F64 {
-    self.e0 * right.e0
-}
-
-get_initial_state =
-    width =@ canvas.width
-    height =@ canvas.height
-    ball_radius = width / 20uint
-    paddle_width = ball_radius
-    paddle_height = height / 5uint
-    paddle_margin = paddle_width
-    rand =@ canvas.random
-    ball_direction = math.Radians[e0: rand * 2f64 * math.pi]
-    ball_speed = (3uint * ball_radius).to_f64
-    time =@ canvas.time
-
-    pure State[
-        dimensions: Tup2[e0: width, e1: height],
-        ball_topleft: Tup2[
-            e0: (width / 2uint - ball_radius).to_int,
-            e1: (height / 2uint - ball_radius).to_int,
-        ],
-        ball_radius: ball_radius,
-        left_paddle_top: (height / 2uint - paddle_height / 2uint).to_int,
-        right_paddle_top: (height / 2uint - paddle_height / 2uint).to_int,
-        paddle_margin: paddle_margin,
-        paddle_dimensions: Tup2[e0: paddle_width, e1: paddle_height],
-        left_score: 0uint,
-        right_score: 0uint,
-        time: canvas.time,
-        ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.cos()],
-        ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.sin()],
-        left_paddle_up_key_down: false,
-        left_paddle_down_key_down: false,
-        right_paddle_up_key_down: false,
-        right_paddle_down_key_down: false,
-    ]
-
-fun update_state!(original: State) -> canvas.Io<State> {
-    current_width =@ canvas.width
-    current_height =@ canvas.height
-    if current_width != orignial.dimensions.e0 || current_height != original.dimensions.e1:
-        canvas.Io.error<State>("TODO: Properly handle changing canvas dimensions.")
-
-    left_paddle_up_key_down =@ canvas.is_keydown("w")
-    left_paddle_down_key_down =@ canvas.is_keydown("s")
-    right_paddle_up_key_down =@ canvas.is_keydown("ArrowUp")
-    right_paddle_down_key_down =@ canvas.is_keydown("ArrowDown")
-
-    left_paddle_movement_direction =
-        if left_paddle_up_key_down && !original.left_paddle_up_key_down:
-            -1int
-        if left_paddle_down_key_down && !original.left_paddle_down_key_down:
-            1int
-        0int
-
-    right_paddle_movement_direction = 
-        if right_paddle_up_key_down && !original.right_paddle_up_key_down:
-            -1int
-        if right_paddle_down_key_down && !original.right_paddle_down_key_down:
-            1int
-        0int
-
-    left_paddle_top =
-        original.left_paddle_top
-        + left_paddle_movement_direction * original.paddle_dimensions.e1.to_int
-
-    right_paddle_top =
-        original.right_paddle_top
-        + right_paddle_movement_direction * original.paddle_dimensions.e1.to_int
-
-    with_paddles_moved_and_controls_updated = State[
-        left_paddle_top: left_paddle_top,
-        right_paddle_top: right_paddle_top,
-        left_paddle_up_key_down: left_paddle_up_key_down,
-        left_paddle_down_key_down: left_paddle_down_key_down,
-        right_paddle_up_key_down: right_paddle_up_key_down,
-        right_paddle_down_key_down: right_paddle_down_key_down,
-        ...original,
-    ]
-    
-    time =@ canvas.time
-    delta_time = (time - original.time).to_seconds
-    ball_dx = (original.ball_vx * delta_time).to_int
-    ball_dy = (original.ball_vy * delta_time).to_int
-    ball_x = original.ball_topleft.e0 + ball_dx
-    ball_y = original.ball_topleft.e1 + ball_dy
-
-    with_ball_moved = State[
-        ball_topleft: Tup2[e0: ball_x, e1: ball_y],
-        ...with_paddles_moved_and_controls_updated,
-    ]
-
-    if with_ball_moved.ball_topleft.e0 < -2int * original.ball_radius.to_int:
-        rand @= canvas.random
-        ball_direction = math.Radians[e0: rand * 2f64 * math.pi]
-        ball_speed = (3uint * ball_radius).to_f64
-        pure State[
-            right_score: original.right_score + 1uint,
-            ball_topleft: Tup2[
-                e0: original.dimensions.e0 / 2int - original.ball_radius.to_int,
-                e1: original.dimensions.e1 / 2int - original.ball_radius.to_int,
-            ],
-            ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.cos()],
-            ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.sin()],
-            ...with_ball_moved,
-        ]
-
-    if with_ball_moved.ball_topleft.e0 > original.dimensions.e0:
-        rand @= canvas.random
-        ball_direction = math.Radians[e0: rand * 2f64 * math.pi]
-        ball_speed = (3uint * ball_radius).to_f64
-        pure State[
-            left_score: original.left_score + 1uint,
-            ball_topleft: Tup2[
-                e0: original.dimensions.e0 / 2int - original.ball_radius.to_int,
-                e1: original.dimensions.e1 / 2int - original.ball_radius.to_int,
-            ],
-            ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.cos()],
-            ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.sin()],
-            ...with_ball_moved,
-        ]
-
-    ball_vx =
-        if is_ball_touching_left_paddle(with_ball_moved) || is_ball_touching_right_paddle(with_ball_moved):
-            with_ball_moved.ball_vx * -1f64
-        with_ball_moved.ball_vx
-
-    ball_vy =
-        if with_ball_moved.ball_topleft.e1 < 0 || with_ball_moved.ball_topleft.e1 > original.dimensions.e1.to_int - 2int * original.ball_radius.to_int:
-            with_ball_moved.ball_vy * -1f64
-        with_ball_moved.ball_vy
-
-    pure State[
-        ball_vx: ball_vx,
-        ball_vy: ball_vy,
-        ...with_ball_moved,
-    ]
-}
-
-fun is_ball_touching_left_paddle(state: State) -> Bool {
-    todo
-}
-
-fun is_ball_touching_right_paddle(state: State) -> Bool {
-    todo
-}
-
-fun render_state(state: State) -> todo {
-    todo
-}
-
-app = canvas.make_app(get_initial_state, update_state, render_state)
+extern fun F64.acos(self) -> Radians
+extern fun F64.asin(self) -> Radians
+extern fun F64.atan(self) -> Radians
