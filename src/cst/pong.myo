@@ -1,3 +1,21 @@
+// Start canvas.myo
+
+mod canvas
+
+extern struct Io(T)[]
+
+extern fun Io.error(String) -> canvas.Io(T)
+
+extern self fun(T) canvas.Io(T).then(U, f: Fun(T) -> canvas.Io(U)) -> canvas.Io(U)
+
+self fun(T) canvas.Io(T).op<-(U, f: Fun(T) -> canvas.Io(U)) -> canvas.Io(U) {
+    self.then(f)
+}
+
+extern 
+
+// End canvas.myo
+
 extern canvas
 
 struct State[
@@ -21,7 +39,7 @@ struct State[
 
 struct PixelsPerSecond[e0: F64]
 
-fun PixelsPerSecond.op*(self, right: Seconds) -> F64 {
+self fun PixelsPerSecond.op*(right: Seconds) -> F64 {
     self.e0 * right.e0
 }
 
