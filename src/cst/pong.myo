@@ -25,15 +25,17 @@ fun PixelsPerSecond.op*(self, right: Seconds) -> F64 {
     self.e0 * right.e0
 }
 
-fun get_initial_state(env: canvas.Io(Unit)) -> canvas.Io(State) @{
-    width = @env.width
-    height = @env.height
+get_initial_state =
+    width = canvas.width!
+    height = canvas.height!
     ball_radius = width / 20uint
     paddle_width = ball_radius
     paddle_height = height / 5uint
     paddle_margin = paddle_width
-    ball_direction = math.Radians[e0: @env.random * 2f64 * math.pi]
+    rand = canvas.random!
+    ball_direction = math.Radians[e0: rand * 2f64 * math.pi]
     ball_speed = (3uint * ball_radius).to_f64
+    time = canvas.time
 
     State[
         dimensions: tup(width, height),
@@ -48,7 +50,7 @@ fun get_initial_state(env: canvas.Io(Unit)) -> canvas.Io(State) @{
         paddle_dimensions: tup(paddle_width, paddle_height),
         left_score: 0uint,
         right_score: 0uint,
-        time: @env.time,
+        time: canvas.time!,
         ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.cos()],
         ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.sin()],
         left_paddle_up_key_down: false,
@@ -56,19 +58,22 @@ fun get_initial_state(env: canvas.Io(Unit)) -> canvas.Io(State) @{
         right_paddle_up_key_down: false,
         right_paddle_down_key_down: false,
     ]
-}
 
-// fun get_initial_state2(env: canvas.Io(Unit)) -> canvas.Io(State) {
-//     env.width.then(fun _(width: Uint) -> canvas.Io(Tup(Uint, Uint)) {
-//         env.height.then(fun _(height: Uint) -> canvas.Io(Tup(Uint, Uint)) {
-//             canvas.Io.wrap(tup(height, width))
-//         })
-//     }).then(fun _(dimensions: Tup(Uint, Uint)) -> canvas.Io(State) {
-//         // ...
+// get_initial_state_2 =
+//     canvas.width.then(fun _(width: Uint) -> canvas.Io(State) {
+//         canvas.height.then(fun _(height: Uint) -> canvas.Io(State) {
+//             ball_radius = width / 20uint
+//             paddle_width = ball_radius
+//             paddle_height = height / 5uint
+//             paddle_margin = paddle_width
+//             canvas.random.then(fun _(anon_random0001) -> canvas.Io(State) {
+//                 ball_direction = math.Radians[e0: anon_random0001 * 2f64 * math.pi]
+//                 ...
+//             })
+//          })
 //     })
-// }
 
-fun update_state(env: Canvas.Io(State)) -> canvas.Io(State) @{
+fun update_state!(original: State) -> canvas.Io(State) @{
     original = env.original_state
 
     if @env.width != orignial.dimensions.e0 || @env.height != original.dimensions.e1:
