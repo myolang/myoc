@@ -1,31 +1,51 @@
 // Start canvas.myo
 
-mod canvas
+in canvas
 
-extern struct Io(T)[]
+use std.*
 
-extern fun Io.error(String) -> canvas.Io(T)
+extern struct Io<T>[]
 
-extern self fun(T) canvas.Io(T).then(U, f: Fun(T) -> canvas.Io(U)) -> canvas.Io(U)
+extern fun Io.ok<T>(raw: T) -> canvas.Io<T>
 
-self fun(T) canvas.Io(T).op<-(U, f: Fun(T) -> canvas.Io(U)) -> canvas.Io(U) {
+fun Io.pure<T>(raw: T) -> canvas.Io<T> {
+    Io.ok(raw)
+}
+
+extern fun Io.error<T>(message: String) -> canvas.Io<T>
+
+extern fun Io.then<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U>
+
+fun Io.op<-<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U> {
     self.then(f)
 }
 
-extern 
+extern width: Io<Uint>
+
+extern height: Io<Uint>
+
+extern time: Io<Seconds>
+
+struct Seconds[e0: F64]
+
+extern random: Io<F64>
+
+extern fun is_keydown(key: String) -> Io<Bool>
 
 // End canvas.myo
 
-extern canvas
+in app
+
+use std.*
 
 struct State[
-    dimensions: Tup(Uint, Uint),
-    ball_topleft: Tup(Int, Int),
+    dimensions: Tup<Uint, Uint>,
+    ball_topleft: Tup<Int, Int>,
     ball_radius: Uint,
     left_paddle_top: Int,
     right_paddle_top: Int,
     paddle_margin: Uint,
-    paddle_dimensions: Tup(Uint, Uint),
+    paddle_dimensions: Tup<Uint, Uint>,
     left_score: Uint,
     right_score: Uint,
     time: canvas.Seconds,
@@ -39,23 +59,23 @@ struct State[
 
 struct PixelsPerSecond[e0: F64]
 
-self fun PixelsPerSecond.op*(right: Seconds) -> F64 {
+fun PixelsPerSecond.op*(self, right: Seconds) -> F64 {
     self.e0 * right.e0
 }
 
 get_initial_state =
-    width = canvas.width!
-    height = canvas.height!
+    width =@ canvas.width
+    height =@ canvas.height
     ball_radius = width / 20uint
     paddle_width = ball_radius
     paddle_height = height / 5uint
     paddle_margin = paddle_width
-    rand = canvas.random!
+    rand =@ canvas.random
     ball_direction = math.Radians[e0: rand * 2f64 * math.pi]
     ball_speed = (3uint * ball_radius).to_f64
-    time = canvas.time
+    time =@ canvas.time
 
-    State[
+    pure State[
         dimensions: tup(width, height),
         ball_topleft: tup(
             (width / 2uint - ball_radius).to_int,
@@ -68,7 +88,7 @@ get_initial_state =
         paddle_dimensions: tup(paddle_width, paddle_height),
         left_score: 0uint,
         right_score: 0uint,
-        time: canvas.time!,
+        time: canvas.time,
         ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.cos()],
         ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.sin()],
         left_paddle_up_key_down: false,
@@ -77,30 +97,16 @@ get_initial_state =
         right_paddle_down_key_down: false,
     ]
 
-// get_initial_state_2 =
-//     canvas.width.then(fun _(width: Uint) -> canvas.Io(State) {
-//         canvas.height.then(fun _(height: Uint) -> canvas.Io(State) {
-//             ball_radius = width / 20uint
-//             paddle_width = ball_radius
-//             paddle_height = height / 5uint
-//             paddle_margin = paddle_width
-//             canvas.random.then(fun _(anon_random0001) -> canvas.Io(State) {
-//                 ball_direction = math.Radians[e0: anon_random0001 * 2f64 * math.pi]
-//                 ...
-//             })
-//          })
-//     })
+fun update_state!(original: State) -> canvas.Io<State> {
+    current_width =@ canvas.width
+    current_height =@ canvas.height
+    if current_width != orignial.dimensions.e0 || current_height != original.dimensions.e1:
+        canvas.Io.error<State>("TODO: Properly handle changing canvas dimensions.")
 
-fun update_state!(original: State) -> canvas.Io(State) @{
-    original = env.original_state
-
-    if @env.width != orignial.dimensions.e0 || @env.height != original.dimensions.e1:
-        @canvas.Io.error(State, "TODO: Properly handle changing canvas dimensions.")
-
-    left_paddle_up_key_down = @env.is_keydown("w")
-    left_paddle_down_key_down = @env.is_keydown("s")
-    right_paddle_up_key_down = @env.is_keydown("ArrowUp")
-    right_paddle_down_key_down = @env.is_keydown("ArrowDown")
+    left_paddle_up_key_down =@ canvas.is_keydown("w")
+    left_paddle_down_key_down =@ canvas.is_keydown("s")
+    right_paddle_up_key_down =@ canvas.is_keydown("ArrowUp")
+    right_paddle_down_key_down =@ canvas.is_keydown("ArrowDown")
 
     left_paddle_movement_direction =
         if left_paddle_up_key_down && !original.left_paddle_up_key_down:
@@ -134,7 +140,7 @@ fun update_state!(original: State) -> canvas.Io(State) @{
         ...original,
     ]
     
-    time = @env.time
+    time =@ canvas.time
     delta_time = (time - original.time).to_seconds
     ball_dx = (original.ball_vx * delta_time).to_int
     ball_dy = (original.ball_vy * delta_time).to_int
@@ -147,9 +153,10 @@ fun update_state!(original: State) -> canvas.Io(State) @{
     ]
 
     if with_ball_moved.ball_topleft.e0 < -2int * original.ball_radius.to_int:
-        ball_direction = math.Radians[e0: @env.random * 2f64 * math.pi]
+        rand @= canvas.random
+        ball_direction = math.Radians[e0: rand * 2f64 * math.pi]
         ball_speed = (3uint * ball_radius).to_f64
-        State[
+        pure State[
             right_score: original.right_score + 1uint,
             ball_topleft: tup(
                 original.dimensions.e0 / 2int - original.ball_radius.to_int,
@@ -161,9 +168,10 @@ fun update_state!(original: State) -> canvas.Io(State) @{
         ]
 
     if with_ball_moved.ball_topleft.e0 > original.dimensions.e0:
-        ball_direction = math.Radians[e0: @env.random * 2f64 * math.pi]
+        rand @= canvas.random
+        ball_direction = math.Radians[e0: rand * 2f64 * math.pi]
         ball_speed = (3uint * ball_radius).to_f64
-        State[
+        pure State[
             left_score: original.left_score + 1uint,
             ball_topleft: tup(
                 original.dimensions.e0 / 2int - original.ball_radius.to_int,
@@ -184,7 +192,7 @@ fun update_state!(original: State) -> canvas.Io(State) @{
             with_ball_moved.ball_vy * -1f64
         with_ball_moved.ball_vy
 
-    State[
+    pure State[
         ball_vx: ball_vx,
         ball_vy: ball_vy,
         ...with_ball_moved,
