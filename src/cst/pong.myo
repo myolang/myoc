@@ -1,3 +1,283 @@
+// Start std.myo
+
+in std
+
+extern struct U8[]
+extern struct U16[]
+extern struct U32[]
+extern struct Uint[]
+
+extern fun U8.to_u16(self) -> U16
+extern fun U8.to_u32(self) -> U32
+extern fun U8.to_uint(self) -> Option<Uint>
+extern fun U8.to_i8(self) -> Option<I8>
+extern fun U8.to_i16(self) -> I16
+extern fun U8.to_i32(self) -> I32
+extern fun U8.to_int(self) -> Option<Int>
+extern fun U8.to_f32(self) -> F32
+extern fun U8.to_f64(self) -> F64
+
+extern fun U16.to_u8(self) -> Option<U8>
+extern fun U16.to_u32(self) -> U32
+extern fun U16.to_uint(self) -> Option<Uint>
+extern fun U16.to_i8(self) -> Option<I8>
+extern fun U16.to_i16(self) -> Option<I16>
+extern fun U16.to_i32(self) -> I32
+extern fun U16.to_int(self) -> Option<Int>
+extern fun U16.to_f32(self) -> F32
+extern fun U16.to_f64(self) -> F64
+
+extern fun U32.to_u8(self) -> Option<U8>
+extern fun U32.to_u16(self) -> Option<U16>
+extern fun U32.to_uint(self) -> Option<Uint>
+extern fun U32.to_i8(self) -> Option<I8>
+extern fun U32.to_i16(self) -> Option<I16>
+extern fun U32.to_i32(self) -> Option<I32>
+extern fun U32.to_int(self) -> Option<Int>
+extern fun U32.to_f32(self) -> F32
+extern fun U32.to_f64(self) -> F64
+
+extern fun Uint.to_u8(self) -> Option<U8>
+extern fun Uint.to_u16(self) -> Option<U16>
+extern fun Uint.to_u32(self) -> Option<U32>
+extern fun Uint.to_i8(self) -> Option<I8>
+extern fun Uint.to_i16(self) -> Option<I16>
+extern fun Uint.to_i32(self) -> Option<I32>
+extern fun Uint.to_int(self) -> Option<Int>
+extern fun Uint.to_f32(self) -> F32
+extern fun Uint.to_f64(self) -> F64
+
+extern struct I8[]
+extern struct I16[]
+extern struct I32[]
+extern struct Int[]
+
+extern fun I8.to_i16(self) -> I16
+extern fun I8.to_i32(self) -> I32
+extern fun I8.to_int(self) -> Option<Int>
+extern fun I8.to_u8(self) -> Option<U8>
+extern fun I8.to_u16(self) -> Option<U16>
+extern fun I8.to_u32(self) -> Option<U32>
+extern fun I8.to_uint(self) -> Option<Uint>
+extern fun I8.to_f32(self) -> F32
+extern fun I8.to_f64(self) -> F64
+
+extern fun I16.to_i8(self) -> Option<I8>
+extern fun I16.to_i32(self) -> I32
+extern fun I16.to_int(self) -> Option<Int>
+extern fun I16.to_u8(self) -> Option<U8>
+extern fun I16.to_u16(self) -> Option<U16>
+extern fun I16.to_u32(self) -> Option<U32>
+extern fun I16.to_uint(self) -> Option<Uint>
+extern fun I16.to_f32(self) -> F32
+extern fun I16.to_f64(self) -> F64
+
+extern fun I32.to_i8(self) -> Option<I8>
+extern fun I32.to_i16(self) -> Option<I16>
+extern fun I32.to_int(self) -> Option<Int>
+extern fun I32.to_u8(self) -> Option<U8>
+extern fun I32.to_u16(self) -> Option<U16>
+extern fun I32.to_u32(self) -> Option<U32>
+extern fun I32.to_uint(self) -> Option<Uint>
+extern fun I32.to_f32(self) -> F32
+extern fun I32.to_f64(self) -> F64
+
+extern fun Int.to_i8(self) -> Option<I8>
+extern fun Int.to_i16(self) -> Option<I16>
+extern fun Int.to_i32(self) -> Option<I32>
+extern fun Int.to_u8(self) -> Option<U8>
+extern fun Int.to_u16(self) -> Option<U16>
+extern fun Int.to_u32(self) -> Option<U32>
+extern fun Int.to_uint(self) -> Option<Uint>
+extern fun Int.to_f32(self) -> F32
+extern fun Int.to_f64(self) -> F64
+
+extern struct F32[]
+extern struct F64[]
+
+extern fun F32.to_f64(self) -> F64
+extern fun F32.to_i8(self) -> Option<I8>
+extern fun F32.to_i16(self) -> Option<I16>
+extern fun F32.to_i32(self) -> Option<I32>
+extern fun F32.to_int(self) -> Option<Int>
+extern fun F32.to_u8(self) -> Option<U8>
+extern fun F32.to_u16(self) -> Option<U16>
+extern fun F32.to_u32(self) -> Option<U32>
+extern fun F32.to_uint(self) -> Option<Uint>
+
+extern fun F64.to_f32(self) -> F32
+extern fun F64.to_i8(self) -> Option<I8>
+extern fun F64.to_i16(self) -> Option<I16>
+extern fun F64.to_i32(self) -> Option<I32>
+extern fun F64.to_int(self) -> Option<Int>
+extern fun F64.to_u8(self) -> Option<U8>
+extern fun F64.to_u16(self) -> Option<U16>
+extern fun F64.to_u32(self) -> Option<U32>
+extern fun F64.to_uint(self) -> Option<Uint>
+
+extern struct Bool[]
+
+extern true: Bool
+extern false: Bool
+
+extern struct String[]
+
+extern struct Option<T>
+extern Option.none<T>: Option<T>
+extern fun Option.some<T>(value: T) -> Option<T>
+extern fun Option.elim<T, U>(self<T>, if_none: U, if_some: Fun(T) -> U) -> U
+
+fun Option.map<T, U>(self<T>, f: Fun(T) -> U) -> Option<U>
+fun Option.and_then<T, U>(self<T>, f: Fun(T) -> Option<U>) -> Option<U> {
+    self.elim(Option.none, f)
+}
+fun Option.op=@<T, U>(self<T>, f: Fun(T) -> Option<U>) -> Option<U> {
+    self.and_then(f)
+}
+fun Option.or<T>(self<T>, f: Option<T>) -> Option<T> {
+    self.elim(f, Option.some)
+}
+fun Option.unwrap_or<T>(self<T>, default: T) -> T {
+    self.elim(default, identity)
+}
+
+
+extern struct Result<T, E>[]
+extern fun Result.ok<T, E>(raw: T) -> Result<T, E>
+extern fun Result.error<T, E>(raw: E) -> Result<T, E>
+extern fun Result.elim<T, E, U>(self<T, E>, if_error: Fun(E) -> U, if_ok: Fun(T) -> U) -> U
+
+fun Result.map_ok<T, U, E>(self<T, E>, f: Fun(T) -> U) -> Result<U, E> {
+    self.elim(Result.error, fun _(value: T) -> Result<U, E> { Result.ok(f(value))})
+}
+fun Result.map_error<T, U, E>(self<T, E>, f: Fun(E) -> U) -> Result<T, U> {
+    self.elim(fun _(value: E) -> Result<T, U> { Result.err(f(value)) }, Result.ok)
+}
+fun Result.and<T, U, E>(self<T, E>, right: Result<U, E>) -> Result<U, E> {
+    self.elim(Result.error, fun _(_: T) -> Result<U, E> { right })
+}
+fun Result.and_then<T, U, E>(self<T, E>, f: Fun(T) -> Result<U, E>) -> Result<U, E> {
+    self.elim(Result.error, f)
+}
+fun Result.op=@<T, U, E>(self<T, E>, f: Fun(T) -> Result<U, E>) -> Result<U, E> {
+    self.and_then(f)
+}
+fun Result.or<T, E>(self<T, E>, right: Result<T, E>) -> Result<T, E> {
+    self.elim(fun _(_: E) -> Result<T, E> { right }, Result.ok)
+}
+fun Result.or_else<T, E, F>(self<T, E>, f: Fun(E) -> Result<T, F>) -> Result<T, F> {
+    self.elim(f, Result.ok)
+}
+fun Result.unwrap_or<T, E>(self<T, E>, default: T) -> T {
+    self.elim(fun _(_: E) -> T { default }, identity)
+}
+fun Result.unwrap_or_else<T, E>(self<T, E>, f: Fun(E) -> T) -> T {
+    self.elim(f, identity)
+}
+fun Result.unwrap_error_or<T, E>(self<T, E>, default: E) -> E {
+    self.elim(identity, fun _(_: T) -> E { default })
+}
+fun Result.unwrap_error_or_else<T, E>(self<T, E>, f: Fun(T) -> E) -> E {
+    self.elim(identity, f)
+}
+
+struct Tup2<A, B>[e0: A, e1: B]
+struct Tup3[A, B, C][e0: A, e1: B, e2: C]
+struct Tup4[A, B, C, D][e0: A, e1: B, e2: C, e3: D]
+struct Tup5[A, B, C, D, E][e0: A, e1: B, e2: C, e3: D, e4: E]
+struct Tup6[A, B, C, D, E, F][e0: A, e1: B, e2: C, e3: D, e4: E, e5: F]
+struct Tup7[A, B, C, D, E, F, G][e0: A, e1: B, e2: C, e3: D, e4: E, e5: F, e6: G]
+struct Tup8[A, B, C, D, E, F, G, H][e0: A, e1: B, e2: C, e3: D, e4: E, e5: F, e6: G, e7: H]
+
+extern struct Vec<T>[]
+// TODO implement Vec functions
+
+fun identity<T>(x: T) -> T {
+    x
+}
+
+in std.math
+
+extern fun I8.op+(self, right: I8) -> I8
+extern fun I8.op-(self, right: I8) -> I8
+extern fun I8.op*(self, right: I8) -> I8
+extern fun I8.op/(self, right: I8) -> I8
+extern fun I8.op%(self, right: I8) -> I8
+
+extern fun I16.op+(self, right: I16) -> I16
+extern fun I16.op-(self, right: I16) -> I16
+extern fun I16.op*(self, right: I16) -> I16
+extern fun I16.op/(self, right: I16) -> I16
+extern fun I16.op%(self, right: I16) -> I16
+
+extern fun I32.op+(self, right: I32) -> I32
+extern fun I32.op-(self, right: I32) -> I32
+extern fun I32.op*(self, right: I32) -> I32
+extern fun I32.op/(self, right: I32) -> I32
+extern fun I32.op%(self, right: I32) -> I32
+
+extern fun Int.op+(self, right: Int) -> Int
+extern fun Int.op-(self, right: Int) -> Int
+extern fun Int.op*(self, right: Int) -> Int
+extern fun Int.op/(self, right: Int) -> Int
+extern fun Int.op%(self, right: Int) -> Int
+
+extern fun U8.op+(self, right: U8) -> U8
+extern fun U8.op-(self, right: U8) -> U8
+extern fun U8.op*(self, right: U8) -> U8
+extern fun U8.op/(self, right: U8) -> U8
+extern fun U8.op%(self, right: U8) -> U8
+
+extern fun U16.op+(self, right: U16) -> U16
+extern fun U16.op-(self, right: U16) -> U16
+extern fun U16.op*(self, right: U16) -> U16
+extern fun U16.op/(self, right: U16) -> U16
+extern fun U16.op%(self, right: U16) -> U16
+
+extern fun U32.op+(self, right: U32) -> U32
+extern fun U32.op-(self, right: U32) -> U32
+extern fun U32.op*(self, right: U32) -> U32
+extern fun U32.op/(self, right: U32) -> U32
+extern fun U32.op%(self, right: U32) -> U32
+
+extern fun Uint.op+(self, right: Uint) -> Uint
+extern fun Uint.op-(self, right: Uint) -> Uint
+extern fun Uint.op*(self, right: Uint) -> Uint
+extern fun Uint.op/(self, right: Uint) -> Uint
+extern fun Uint.op%(self, right: Uint) -> Uint
+
+extern fun F32.op+(self, right: F32) -> F32
+extern fun F32.op-(self, right: F32) -> F32
+extern fun F32.op*(self, right: F32) -> F32
+extern fun F32.op/(self, right: F32) -> F32
+extern fun F32.op%(self, right: F32) -> F32
+extern fun F32.op**(self, right: F32) -> F32
+extern fun F32.log(self) -> F32
+
+extern fun F64.op+(self, right: F64) -> F64
+extern fun F64.op-(self, right: F64) -> F64
+extern fun F64.op*(self, right: F64) -> F64
+extern fun F64.op/(self, right: F64) -> F64
+extern fun F64.op%(self, right: F64) -> F64
+extern fun F64.op**(self, right: F64) -> F64
+extern fun F64.log(self) -> F64
+
+struct Radians[e0: F64]
+
+extern fun Radians.cos(self) -> F64
+extern fun Radians.sin(self) -> F64
+extern fun Radians.tan(self) -> F64
+
+extern fun F32.acos(self) -> math.Radians
+extern fun F32.asin(self) -> math.Radians
+extern fun F32.atan(self) -> math.Radians
+
+extern fun F64.acos(self) -> math.Radians
+extern fun F64.asin(self) -> math.Radians
+extern fun F64.atan(self) -> math.Radians
+
+// End std.myo
+
 // Start canvas.myo
 
 in canvas
@@ -16,7 +296,7 @@ extern fun Io.error<T>(message: String) -> canvas.Io<T>
 
 extern fun Io.then<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U>
 
-fun Io.op<-<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U> {
+fun Io.op=@<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U> {
     self.then(f)
 }
 
@@ -39,13 +319,13 @@ in app
 use std.*
 
 struct State[
-    dimensions: Tup<Uint, Uint>,
-    ball_topleft: Tup<Int, Int>,
+    dimensions: Tup2<Uint, Uint>,
+    ball_topleft: Tup2<Int, Int>,
     ball_radius: Uint,
     left_paddle_top: Int,
     right_paddle_top: Int,
     paddle_margin: Uint,
-    paddle_dimensions: Tup<Uint, Uint>,
+    paddle_dimensions: Tup2<Uint, Uint>,
     left_score: Uint,
     right_score: Uint,
     time: canvas.Seconds,
@@ -76,16 +356,16 @@ get_initial_state =
     time =@ canvas.time
 
     pure State[
-        dimensions: tup(width, height),
-        ball_topleft: tup(
-            (width / 2uint - ball_radius).to_int,
-            (height / 2uint - ball_radius).to_int,
-        ),
+        dimensions: Tup2[e0: width, e1: height],
+        ball_topleft: Tup2[
+            e0: (width / 2uint - ball_radius).to_int,
+            e1: (height / 2uint - ball_radius).to_int,
+        ],
         ball_radius: ball_radius,
         left_paddle_top: (height / 2uint - paddle_height / 2uint).to_int,
         right_paddle_top: (height / 2uint - paddle_height / 2uint).to_int,
         paddle_margin: paddle_margin,
-        paddle_dimensions: tup(paddle_width, paddle_height),
+        paddle_dimensions: Tup2[e0: paddle_width, e1: paddle_height],
         left_score: 0uint,
         right_score: 0uint,
         time: canvas.time,
@@ -148,7 +428,7 @@ fun update_state!(original: State) -> canvas.Io<State> {
     ball_y = original.ball_topleft.e1 + ball_dy
 
     with_ball_moved = State[
-        ball_topleft: tup(ball_x, ball_y),
+        ball_topleft: Tup2[e0: ball_x, e1: ball_y],
         ...with_paddles_moved_and_controls_updated,
     ]
 
@@ -158,10 +438,10 @@ fun update_state!(original: State) -> canvas.Io<State> {
         ball_speed = (3uint * ball_radius).to_f64
         pure State[
             right_score: original.right_score + 1uint,
-            ball_topleft: tup(
-                original.dimensions.e0 / 2int - original.ball_radius.to_int,
-                original.dimensions.e1 / 2int - original.ball_radius.to_int,
-            ),
+            ball_topleft: Tup2[
+                e0: original.dimensions.e0 / 2int - original.ball_radius.to_int,
+                e1: original.dimensions.e1 / 2int - original.ball_radius.to_int,
+            ],
             ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.cos()],
             ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.sin()],
             ...with_ball_moved,
@@ -173,10 +453,10 @@ fun update_state!(original: State) -> canvas.Io<State> {
         ball_speed = (3uint * ball_radius).to_f64
         pure State[
             left_score: original.left_score + 1uint,
-            ball_topleft: tup(
-                original.dimensions.e0 / 2int - original.ball_radius.to_int,
-                original.dimensions.e1 / 2int - original.ball_radius.to_int,
-            ),
+            ball_topleft: Tup2[
+                e0: original.dimensions.e0 / 2int - original.ball_radius.to_int,
+                e1: original.dimensions.e1 / 2int - original.ball_radius.to_int,
+            ],
             ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.cos()],
             ball_vx: PixelsPerSecond[e0: ball_speed * ball_direction.sin()],
             ...with_ball_moved,
