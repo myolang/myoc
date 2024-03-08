@@ -6,3 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[dev-dependencies]
+pretty_assertions = "1.3.0"
+
+[build-dependencies]
+kiki = "7"
+walkdir = "2"
+sha256-string = { package = "sha256", version = "1.1.4" }
