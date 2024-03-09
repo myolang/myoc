@@ -2,7 +2,7 @@ in canvas
 
 use std.*
 
-extern struct Io<T>[]
+extern struct Io<T>
 
 extern fun Io.ok<T>(raw: T) -> canvas.Io<T>
 
@@ -24,7 +24,7 @@ extern height: Io<Uint>
 
 extern time: Io<Seconds>
 
-struct Seconds[e0: F64]
+struct Seconds(F64)
 
 extern random: Io<F64>
 
@@ -37,4 +37,4 @@ fun DrawCommand.draw_image(image_name: String, x: Int, y: Int, w: Uint, h: Uint)
 }
 extern fun DrawCommand.draw_image_with_alpha(image_name: String, x: Int, y: Int, w: Uint, h: Uint, alpha: U8) -> DrawCommand
 
-struct Rgba[r: U8, g: U8, b: U8, a: U8]
+struct Rgba(Uint, Uint, Uint, Uint)

@@ -1,91 +1,13 @@
 in std
 
-extern struct U8[]
-extern struct U16[]
-extern struct U32[]
-extern struct Uint[]
+extern struct Uint
 
-extern fun U8.to_u16(self) -> U16
-extern fun U8.to_u32(self) -> U32
-extern fun U8.to_uint(self) -> Option<Uint>
-extern fun U8.to_i8(self) -> Option<I8>
-extern fun U8.to_i16(self) -> I16
-extern fun U8.to_i32(self) -> I32
-extern fun U8.to_int(self) -> Option<Int>
-extern fun U8.to_f32(self) -> F32
-extern fun U8.to_f64(self) -> F64
-
-extern fun U16.to_u8(self) -> Option<U8>
-extern fun U16.to_u32(self) -> U32
-extern fun U16.to_uint(self) -> Option<Uint>
-extern fun U16.to_i8(self) -> Option<I8>
-extern fun U16.to_i16(self) -> Option<I16>
-extern fun U16.to_i32(self) -> I32
-extern fun U16.to_int(self) -> Option<Int>
-extern fun U16.to_f32(self) -> F32
-extern fun U16.to_f64(self) -> F64
-
-extern fun U32.to_u8(self) -> Option<U8>
-extern fun U32.to_u16(self) -> Option<U16>
-extern fun U32.to_uint(self) -> Option<Uint>
-extern fun U32.to_i8(self) -> Option<I8>
-extern fun U32.to_i16(self) -> Option<I16>
-extern fun U32.to_i32(self) -> Option<I32>
-extern fun U32.to_int(self) -> Option<Int>
-extern fun U32.to_f32(self) -> F32
-extern fun U32.to_f64(self) -> F64
-
-extern fun Uint.to_u8(self) -> Option<U8>
-extern fun Uint.to_u16(self) -> Option<U16>
-extern fun Uint.to_u32(self) -> Option<U32>
-extern fun Uint.to_i8(self) -> Option<I8>
-extern fun Uint.to_i16(self) -> Option<I16>
-extern fun Uint.to_i32(self) -> Option<I32>
 extern fun Uint.to_int(self) -> Option<Int>
 extern fun Uint.to_f32(self) -> F32
 extern fun Uint.to_f64(self) -> F64
 
-extern struct I8[]
-extern struct I16[]
-extern struct I32[]
 extern struct Int[]
 
-extern fun I8.to_i16(self) -> I16
-extern fun I8.to_i32(self) -> I32
-extern fun I8.to_int(self) -> Option<Int>
-extern fun I8.to_u8(self) -> Option<U8>
-extern fun I8.to_u16(self) -> Option<U16>
-extern fun I8.to_u32(self) -> Option<U32>
-extern fun I8.to_uint(self) -> Option<Uint>
-extern fun I8.to_f32(self) -> F32
-extern fun I8.to_f64(self) -> F64
-
-extern fun I16.to_i8(self) -> Option<I8>
-extern fun I16.to_i32(self) -> I32
-extern fun I16.to_int(self) -> Option<Int>
-extern fun I16.to_u8(self) -> Option<U8>
-extern fun I16.to_u16(self) -> Option<U16>
-extern fun I16.to_u32(self) -> Option<U32>
-extern fun I16.to_uint(self) -> Option<Uint>
-extern fun I16.to_f32(self) -> F32
-extern fun I16.to_f64(self) -> F64
-
-extern fun I32.to_i8(self) -> Option<I8>
-extern fun I32.to_i16(self) -> Option<I16>
-extern fun I32.to_int(self) -> Option<Int>
-extern fun I32.to_u8(self) -> Option<U8>
-extern fun I32.to_u16(self) -> Option<U16>
-extern fun I32.to_u32(self) -> Option<U32>
-extern fun I32.to_uint(self) -> Option<Uint>
-extern fun I32.to_f32(self) -> F32
-extern fun I32.to_f64(self) -> F64
-
-extern fun Int.to_i8(self) -> Option<I8>
-extern fun Int.to_i16(self) -> Option<I16>
-extern fun Int.to_i32(self) -> Option<I32>
-extern fun Int.to_u8(self) -> Option<U8>
-extern fun Int.to_u16(self) -> Option<U16>
-extern fun Int.to_u32(self) -> Option<U32>
 extern fun Int.to_uint(self) -> Option<Uint>
 extern fun Int.to_f32(self) -> F32
 extern fun Int.to_f64(self) -> F64
@@ -94,36 +16,18 @@ extern struct F32[]
 extern struct F64[]
 
 extern fun F32.to_f64(self) -> F64
-extern fun F32.to_i8(self) -> Option<I8>
-extern fun F32.to_i16(self) -> Option<I16>
-extern fun F32.to_i32(self) -> Option<I32>
 extern fun F32.to_int(self) -> Option<Int>
-extern fun F32.to_u8(self) -> Option<U8>
-extern fun F32.to_u16(self) -> Option<U16>
-extern fun F32.to_u32(self) -> Option<U32>
 extern fun F32.to_uint(self) -> Option<Uint>
 
 extern fun F64.to_f32(self) -> F32
-extern fun F64.to_i8(self) -> Option<I8>
-extern fun F64.to_i16(self) -> Option<I16>
-extern fun F64.to_i32(self) -> Option<I32>
 extern fun F64.to_int(self) -> Option<Int>
-extern fun F64.to_u8(self) -> Option<U8>
-extern fun F64.to_u16(self) -> Option<U16>
-extern fun F64.to_u32(self) -> Option<U32>
 extern fun F64.to_uint(self) -> Option<Uint>
 
 extern struct String[]
 extern fun String.len(self) -> Uint
-extern fun String.is_empty(self) -> Bool
-extern fun String.contains(self, substr: String) -> Bool
-extern fun String.starts_with(self, prefix: String) -> Bool
-extern fun String.ends_with(self, suffix: String) -> Bool
-extern fun String.find(self, substr: String) -> Option<Uint>
-extern fun String.split(self, delimiter: String) -> Vec<String>
+extern fun String.index_of(self, substr: String) -> Option<Uint>
 extern fun String.to_uppercase(self) -> String
 extern fun String.to_lowercase(self) -> String
-extern fun String.trim(self) -> String
 extern fun String.slice(self, start_byte: Uint, end_byte: Uint) -> Option<String>
 extern fun String.slice_to_end(self, start_byte: Uint) -> Option<String>
 extern fun String.concat(self, other: String) -> String
@@ -187,15 +91,6 @@ fun Result.unwrap_error_or_else<T, E>(self<T, E>, f: Fun(T) -> E) -> E {
     self.elim(identity, f)
 }
 
-struct Unit
-struct Tup2<A, B>[e0: A, e1: B]
-struct Tup3[A, B, C][e0: A, e1: B, e2: C]
-struct Tup4[A, B, C, D][e0: A, e1: B, e2: C, e3: D]
-struct Tup5[A, B, C, D, E][e0: A, e1: B, e2: C, e3: D, e4: E]
-struct Tup6[A, B, C, D, E, F][e0: A, e1: B, e2: C, e3: D, e4: E, e5: F]
-struct Tup7[A, B, C, D, E, F, G][e0: A, e1: B, e2: C, e3: D, e4: E, e5: F, e6: G]
-struct Tup8[A, B, C, D, E, F, G, H][e0: A, e1: B, e2: C, e3: D, e4: E, e5: F, e6: G, e7: H]
-
 extern struct Bool
 extern Bool.true: Bool
 extern Bool.false: Bool
@@ -222,47 +117,11 @@ in std.math
 
 use std.*
 
-extern fun I8.op+(self, right: I8) -> I8
-extern fun I8.op-(self, right: I8) -> I8
-extern fun I8.op*(self, right: I8) -> I8
-extern fun I8.op/(self, right: I8) -> I8
-extern fun I8.op%(self, right: I8) -> I8
-
-extern fun I16.op+(self, right: I16) -> I16
-extern fun I16.op-(self, right: I16) -> I16
-extern fun I16.op*(self, right: I16) -> I16
-extern fun I16.op/(self, right: I16) -> I16
-extern fun I16.op%(self, right: I16) -> I16
-
-extern fun I32.op+(self, right: I32) -> I32
-extern fun I32.op-(self, right: I32) -> I32
-extern fun I32.op*(self, right: I32) -> I32
-extern fun I32.op/(self, right: I32) -> I32
-extern fun I32.op%(self, right: I32) -> I32
-
 extern fun Int.op+(self, right: Int) -> Int
 extern fun Int.op-(self, right: Int) -> Int
 extern fun Int.op*(self, right: Int) -> Int
 extern fun Int.op/(self, right: Int) -> Int
 extern fun Int.op%(self, right: Int) -> Int
-
-extern fun U8.op+(self, right: U8) -> U8
-extern fun U8.op-(self, right: U8) -> U8
-extern fun U8.op*(self, right: U8) -> U8
-extern fun U8.op/(self, right: U8) -> U8
-extern fun U8.op%(self, right: U8) -> U8
-
-extern fun U16.op+(self, right: U16) -> U16
-extern fun U16.op-(self, right: U16) -> U16
-extern fun U16.op*(self, right: U16) -> U16
-extern fun U16.op/(self, right: U16) -> U16
-extern fun U16.op%(self, right: U16) -> U16
-
-extern fun U32.op+(self, right: U32) -> U32
-extern fun U32.op-(self, right: U32) -> U32
-extern fun U32.op*(self, right: U32) -> U32
-extern fun U32.op/(self, right: U32) -> U32
-extern fun U32.op%(self, right: U32) -> U32
 
 extern fun Uint.op+(self, right: Uint) -> Uint
 extern fun Uint.op-(self, right: Uint) -> Uint
@@ -286,7 +145,7 @@ extern fun F64.op%(self, right: F64) -> F64
 extern fun F64.op**(self, right: F64) -> F64
 extern fun F64.log(self) -> F64
 
-struct Radians[e0: F64]
+struct Radians(F64)
 
 extern fun Radians.cos(self) -> F64
 extern fun Radians.sin(self) -> F64
