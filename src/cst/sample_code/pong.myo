@@ -88,11 +88,11 @@ fun update_state!(original: State) -> canvas.Io<State>:
 
     left_paddle_top =
         original.left_paddle_top
-        + left_paddle_movement_direction * original.paddle_dimensions.e1.to_int
+        + left_paddle_movement_direction * original.paddle_dimensions.1.to_int
 
     right_paddle_top =
         original.right_paddle_top
-        + right_paddle_movement_direction * original.paddle_dimensions.e1.to_int
+        + right_paddle_movement_direction * original.paddle_dimensions.1.to_int
 
     with_paddles_moved_and_controls_updated = State {
         left_paddle_top: left_paddle_top,
@@ -123,8 +123,8 @@ fun update_state!(original: State) -> canvas.Io<State>:
         pure State[
             right_score: original.right_score + 1uint,
             ball_topleft: [
-                original.dimensions.e0 / 2int - original.ball_radius.to_int,
-                original.dimensions.e1 / 2int - original.ball_radius.to_int,
+                original.dimensions.0 / 2int - original.ball_radius.to_int,
+                original.dimensions.1 / 2int - original.ball_radius.to_int,
             ],
             ball_vx: PixelsPerSecond(ball_speed * ball_direction.cos()),
             ball_vx: PixelsPerSecond(ball_speed * ball_direction.sin()),
@@ -138,8 +138,8 @@ fun update_state!(original: State) -> canvas.Io<State>:
         pure State[
             left_score: original.left_score + 1uint,
             ball_topleft: [
-                original.dimensions.e0 / 2int - original.ball_radius.to_int,
-                original.dimensions.e1 / 2int - original.ball_radius.to_int,
+                original.dimensions.0 / 2int - original.ball_radius.to_int,
+                original.dimensions.1 / 2int - original.ball_radius.to_int,
             ],
             ball_vx: PixelsPerSecond(ball_speed * ball_direction.cos()),
             ball_vx: PixelsPerSecond(ball_speed * ball_direction.sin()),
@@ -152,7 +152,7 @@ fun update_state!(original: State) -> canvas.Io<State>:
         with_ball_moved.ball_vx
 
     ball_vy =
-        if with_ball_moved.ball_topleft.e1 < 0 | with_ball_moved.ball_topleft.e1 > original.dimensions.e1.to_int - 2int * original.ball_radius.to_int:
+        if with_ball_moved.ball_topleft.1 < 0 | with_ball_moved.ball_topleft.1 > original.dimensions.1.to_int - 2int * original.ball_radius.to_int:
             with_ball_moved.ball_vy * -1f64
         with_ball_moved.ball_vy
 
@@ -172,7 +172,36 @@ fun is_ball_touching_right_paddle(state: State) -> Bool {
 }
 
 fun render_state(state: State) -> Vec<canvas.DrawCommand> {
-    todo
+    vec[
+        canvas.DrawCommand.fill_rect(
+            0int,
+            0int,
+            state.dimensions.0,
+            state.dimensions.1,
+            canvas.Color(0uint, 0uint, 0uint, 255uint),
+        ),
+        canvas.DrawCommand.fill_rect(
+            state.paddle_margin.to_int,
+            state.left_paddle_top,
+            state.paddle_dimensions.0.to_int,
+            state.paddle_dimensions.1.to_int,
+            canvas.Color(255uint, 0uint, 0uint, 255uint),
+        ),
+        canvas.DrawCommand.fill_rect(
+            state.dimensions.0.to_int - state.paddle_margin.to_int - state.paddle_dimensions.0.to_int,
+            state.right_paddle_top,
+            state.paddle_dimensions.0.to_int,
+            state.paddle_dimensions.1.to_int,
+            canvas.Color(0uint, 0uint, 255uint, 255uint),
+        ),
+        canvas.DrawCommand.fill_rect(
+            state.ball_topleft.0,
+            state.ball_topleft.1,
+            state.ball_radius * 2uint,
+            state.ball_radius * 2uint,
+            canvas.Color(255uint, 255uint, 255uint, 255uint),
+        ),
+    ]
 }
 
 app = canvas.make_app(get_initial_state, update_state, render_state)
