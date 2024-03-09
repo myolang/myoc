@@ -6,14 +6,14 @@ extern fun Uint.to_int(self) -> Option<Int>
 extern fun Uint.to_f32(self) -> F32
 extern fun Uint.to_f64(self) -> F64
 
-extern struct Int[]
+extern struct Int
 
 extern fun Int.to_uint(self) -> Option<Uint>
 extern fun Int.to_f32(self) -> F32
 extern fun Int.to_f64(self) -> F64
 
-extern struct F32[]
-extern struct F64[]
+extern struct F32
+extern struct F64
 
 extern fun F32.to_f64(self) -> F64
 extern fun F32.to_int(self) -> Option<Int>
@@ -23,7 +23,7 @@ extern fun F64.to_f32(self) -> F32
 extern fun F64.to_int(self) -> Option<Int>
 extern fun F64.to_uint(self) -> Option<Uint>
 
-extern struct String[]
+extern struct String
 extern fun String.len(self) -> Uint
 extern fun String.index_of(self, substr: String) -> Option<Uint>
 extern fun String.to_uppercase(self) -> String
@@ -52,19 +52,19 @@ fun Option.unwrap_or<T>(self<T>, default: T) -> T {
 }
 
 
-extern struct Result<T, E>[]
+extern struct Result<T, E>
 extern fun Result.ok<T, E>(raw: T) -> Result<T, E>
 extern fun Result.error<T, E>(raw: E) -> Result<T, E>
 extern fun Result.elim<T, E, U>(self<T, E>, if_error: Fun(E) -> U, if_ok: Fun(T) -> U) -> U
 
 fun Result.map_ok<T, U, E>(self<T, E>, f: Fun(T) -> U) -> Result<U, E> {
-    self.elim(Result.error, fun _(value: T) -> Result<U, E> { Result.ok(f(value))})
+    self.elim(Result.error, closure _(value: T) -> Result<U, E> { Result.ok(f(value))})
 }
 fun Result.map_error<T, U, E>(self<T, E>, f: Fun(E) -> U) -> Result<T, U> {
-    self.elim(fun _(value: E) -> Result<T, U> { Result.err(f(value)) }, Result.ok)
+    self.elim(closure _(value: E) -> Result<T, U> { Result.err(f(value)) }, Result.ok)
 }
 fun Result.and<T, U, E>(self<T, E>, right: Result<U, E>) -> Result<U, E> {
-    self.elim(Result.error, fun _(_: T) -> Result<U, E> { right })
+    self.elim(Result.error, closure _(_: T) -> Result<U, E> { right })
 }
 fun Result.and_then<T, U, E>(self<T, E>, f: Fun(T) -> Result<U, E>) -> Result<U, E> {
     self.elim(Result.error, f)
@@ -73,19 +73,19 @@ fun Result.op=@<T, U, E>(self<T, E>, f: Fun(T) -> Result<U, E>) -> Result<U, E> 
     self.and_then(f)
 }
 fun Result.or<T, E>(self<T, E>, right: Result<T, E>) -> Result<T, E> {
-    self.elim(fun _(_: E) -> Result<T, E> { right }, Result.ok)
+    self.elim(closure _(_: E) -> Result<T, E> { right }, Result.ok)
 }
 fun Result.or_else<T, E, F>(self<T, E>, f: Fun(E) -> Result<T, F>) -> Result<T, F> {
     self.elim(f, Result.ok)
 }
 fun Result.unwrap_or<T, E>(self<T, E>, default: T) -> T {
-    self.elim(fun _(_: E) -> T { default }, identity)
+    self.elim(closure _(_: E) -> T { default }, identity)
 }
 fun Result.unwrap_or_else<T, E>(self<T, E>, f: Fun(E) -> T) -> T {
     self.elim(f, identity)
 }
 fun Result.unwrap_error_or<T, E>(self<T, E>, default: E) -> E {
-    self.elim(identity, fun _(_: T) -> E { default })
+    self.elim(identity, closure _(_: T) -> E { default })
 }
 fun Result.unwrap_error_or_else<T, E>(self<T, E>, f: Fun(T) -> E) -> E {
     self.elim(identity, f)
@@ -106,7 +106,7 @@ fun Bool.op!=(self, right: Bool) -> Bool {
     self.xor(right)
 }
 
-extern struct Vec<T>[]
+extern struct Vec<T>
 // TODO implement Vec functions
 
 fun identity<T>(x: T) -> T {

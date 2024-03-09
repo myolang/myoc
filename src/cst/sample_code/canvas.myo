@@ -6,17 +6,15 @@ extern struct Io<T>
 
 extern fun Io.ok<T>(raw: T) -> canvas.Io<T>
 
-fun Io.pure<T>(raw: T) -> canvas.Io<T> {
+fun Io.pure<T>(raw: T) -> canvas.Io<T>:
     Io.ok(raw)
-}
 
 extern fun Io.error<T>(message: String) -> canvas.Io<T>
 
 extern fun Io.then<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U>
 
-fun Io.op=@<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U> {
+fun Io.op=@<T, U>(self<T>, f: Fun(T) -> Io<U>) -> Io<U>:
     self.then(f)
-}
 
 extern width: Io<Uint>
 
@@ -32,9 +30,8 @@ extern fun is_keydown(key: String) -> Io<Bool>
 
 extern struct DrawCommand
 extern fun DrawCommand.fill_rect(x: Int, y: Int, w: Uint, h: Uint, color: Rgba) -> DrawCommand
-fun DrawCommand.draw_image(image_name: String, x: Int, y: Int, w: Uint, h: Uint) -> DrawCommand {
+fun DrawCommand.draw_image(image_name: String, x: Int, y: Int, w: Uint, h: Uint) -> DrawCommand:
     DrawCommand.draw_image_with_alpha(image_name, x, y, w, h, 255u8)
-}
 extern fun DrawCommand.draw_image_with_alpha(image_name: String, x: Int, y: Int, w: Uint, h: Uint, alpha: U8) -> DrawCommand
 
 struct Rgba(Uint, Uint, Uint, Uint)

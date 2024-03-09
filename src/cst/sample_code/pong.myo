@@ -23,9 +23,8 @@ struct State {
 
 struct PixelsPerSecond(F64)
 
-fun PixelsPerSecond.op*(self, right: Seconds) -> F64 {
+fun PixelsPerSecond.op*(self, right: Seconds) -> F64:
     self.0 * right.0
-}
 
 get_initial_state =
     width =@ canvas.width
@@ -163,15 +162,37 @@ fun update_state!(original: State) -> canvas.Io<State>:
     }
 
 
-fun is_ball_touching_left_paddle(state: State) -> Bool {
-    todo
-}
+fun is_ball_touching_left_paddle(state: State) -> Bool:
+    ball_left = state.ball_topleft.0
+    ball_right = ball_left + state.ball_radius * 2uint
+    paddle_left = state.paddle_margin.to_int
+    paddle_right = paddle_left + state.paddle_dimensions.0.to_int
+    in_horizontal_bounds = ball_left <= paddle_right & paddle_left <= ball_right
 
-fun is_ball_touching_right_paddle(state: State) -> Bool {
-    todo
-}
+    ball_top = state.ball_topleft.1
+    ball_bottom = ball_top + state.ball_radius * 2uint
+    paddle_top = state.left_paddle_top
+    paddle_bottom = paddle_top + state.paddle_dimensions.1.to_int
+    in_vertical_bounds = ball_top <= paddle_bottom & paddle_top <= ball_bottom
 
-fun render_state(state: State) -> Vec<canvas.DrawCommand> {
+    in_horizontal_bounds & in_vertical_bounds
+
+fun is_ball_touching_right_paddle(state: State) -> Bool:
+    ball_left = state.ball_topleft.0
+    ball_right = ball_left + state.ball_radius * 2uint
+    paddle_right = state.dimensions.0.to_int - state.paddle_margin.to_int
+    paddle_left = paddle_right - state.paddle_dimensions.0.to_int
+    in_horizontal_bounds = ball_left <= paddle_right & paddle_left <= ball_right
+
+    ball_top = state.ball_topleft.1
+    ball_bottom = ball_top + state.ball_radius * 2uint
+    paddle_top = state.right_paddle_top
+    paddle_bottom = paddle_top + state.paddle_dimensions.1.to_int
+    in_vertical_bounds = ball_top <= paddle_bottom & paddle_top <= ball_bottom
+
+    in_horizontal_bounds & in_vertical_bounds
+
+fun render_state(state: State) -> Vec<canvas.DrawCommand>:
     vec[
         canvas.DrawCommand.fill_rect(
             0int,
@@ -202,6 +223,5 @@ fun render_state(state: State) -> Vec<canvas.DrawCommand> {
             canvas.Color(255uint, 255uint, 255uint, 255uint),
         ),
     ]
-}
 
 app = canvas.make_app(get_initial_state, update_state, render_state)
