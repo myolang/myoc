@@ -107,7 +107,9 @@ fun Bool.op!=(self, right: Bool) -> Bool {
 }
 
 extern struct Vec<T>
-// TODO implement Vec functions
+extern fun Vec.cons<T>(self<T>, value: T) -> Vec<T>
+extern Vec.nil<T>: Vec<T>
+extern Vec.elim<T, U>(self<T>, if_nil: U, if_cons: Fun(T, Vec<T>) -> U) -> U
 
 fun identity<T>(x: T) -> T {
     x
