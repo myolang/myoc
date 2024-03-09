@@ -160,3 +160,6 @@ extern fun F32.atan(self) -> Radians
 extern fun F64.acos(self) -> Radians
 extern fun F64.asin(self) -> Radians
 extern fun F64.atan(self) -> Radians
+
+extern struct Range(Uint, Uint)
+extern fun Range.map<T>(self, f: Fun(i: Uint) -> T) -> Vec<T>

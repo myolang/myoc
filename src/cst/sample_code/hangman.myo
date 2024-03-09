@@ -1,0 +1,36 @@
+in hangman
+
+app: Io.Task<[]> =
+    words = vec["apple", "banana", "cat", "dog", "elephant", "flower"]
+    rand =@ io.random
+    i = (words.len.to_f64 * rand).floor
+    word @= words.index(i).unwrap
+    known = hidden_char.repeat(word.len)
+
+    ask_for_guess_and_handle(word, known, 0Uint)
+
+max_strikes = 6uint
+hidden_char = "_"
+
+fun ask_for_guess_and_handle(word: String, known: String, strikes: Uint) -> io.Task<[]>:
+    guess =@ io.read_line
+
+    if guess.len != 1:
+        @ io.println("Please enter a single letter.")
+        ask_for_guess_and_handle(word, strikes)
+    
+    if !word.contains(guess):
+        @ io.println("Nope! You have " + (max_strikes - strikes).to_string + " strikes left.")
+        ask_for_guess_and_handle(word, known, strikes + 1uint)
+
+    new_known = reveal(word, known, guess)
+    @ io.println(known)
+    ask_for_guess_and_handle(word, new_known, strikes)
+
+fun reveal(word: String, known: String, guess: String) -> String:
+    Range(0, word.len).map(closure (i: Uint) -> String {
+        if word.byte_index(i) == guess | known.byte_index(i) != hidden_char:
+            word.byte_index(i).to_string
+        hidden_char
+    }).join("")
+    
