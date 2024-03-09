@@ -35,3 +35,11 @@ fun DrawCommand.draw_image(image_name: String, x: Int, y: Int, w: Uint, h: Uint)
 extern fun DrawCommand.draw_image_with_alpha(image_name: String, x: Int, y: Int, w: Uint, h: Uint, alpha: U8) -> DrawCommand
 
 struct Rgba(Uint, Uint, Uint, Uint)
+
+extern fun make_app<S>(
+    initial_state: Io<S>,
+    update_state: Fun(original: S) -> Io<S>,
+    render_state: Fun(state: S) -> Vec<DrawCommand>,
+) -> canvas.App
+
+extern struct App

@@ -1,0 +1,313 @@
+in pong
+
+use std.*
+
+struct State {
+    dimensions: [Uint, Uint],
+    ball_topleft: [Int, Int],
+    ball_radius: Uint,
+    left_paddle_top: Int,
+    right_paddle_top: Int,
+    paddle_margin: Uint,
+    paddle_dimensions: [Uint, Uint],
+    left_score: Uint,
+    right_score: Uint,
+    time: canvas.Seconds,
+    ball_vx: PixelsPerSecond,
+    ball_vy: PixelsPerSecond,
+    left_paddle_up_key_down: Bool,
+    left_paddle_down_key_down: Bool,
+    right_paddle_up_key_down: Bool,
+    right_paddle_down_key_down: Bool,
+}
+
+struct PixelsPerSecond(F64)
+
+fun PixelsPerSecond.op*(self, right: Seconds) -> F64:
+    self.0 * right.0
+
+get_initial_state =
+    width =@ canvas.width
+    height =@ canvas.height
+    ball_radius = width / 20uint
+    paddle_width = ball_radius
+    paddle_height = height / 5uint
+    paddle_margin = paddle_width
+    rand =@ canvas.random
+    ball_direction = math.Radians(rand * 2f64 * math.pi)
+    ball_speed = (3uint * ball_radius).to_f64
+    time =@ canvas.time
+
+    pure State {
+        dimensions: [width, height],
+        ball_topleft: [
+            (width / 2uint - ball_radius).to_int,
+            (height / 2uint - ball_radius).to_int,
+        ],
+        ball_radius: ball_radius,
+        left_paddle_top: (height / 2uint - paddle_height / 2uint).to_int,
+        right_paddle_top: (height / 2uint - paddle_height / 2uint).to_int,
+        paddle_margin: paddle_margin,
+        paddle_dimensions: [paddle_width, paddle_height],
+        left_score: 0uint,
+        right_score: 0uint,
+        time: canvas.time,
+        ball_vx: PixelsPerSecond(ball_speed * ball_direction.cos()),
+        ball_vx: PixelsPerSecond(ball_speed * ball_direction.sin()),
+        left_paddle_up_key_down: false,
+        left_paddle_down_key_down: false,
+        right_paddle_up_key_down: false,
+        right_paddle_down_key_down: false,
+    }
+
+fun update_state!(original: State) -> canvas.Io<State>:
+    current_width =@ canvas.width
+    current_height =@ canvas.height
+    if current_width != original.dimensions.0 | current_height != original.dimensions.1:
+        canvas.Io.error<State>("TODO: Properly handle changing canvas dimensions.")
+
+    left_paddle_up_key_down =@ canvas.is_keydown("w")
+    left_paddle_down_key_down =@ canvas.is_keydown("s")
+    right_paddle_up_key_down =@ canvas.is_keydown("ArrowUp")
+    right_paddle_down_key_down =@ canvas.is_keydown("ArrowDown")
+
+    left_paddle_movement_direction =
+        if left_paddle_up_key_down && !original.left_paddle_up_key_down:
+            -1int
+        if left_paddle_down_key_down && !original.left_paddle_down_key_down:
+            1int
+        0int
+
+    right_paddle_movement_direction = 
+        if right_paddle_up_key_down && !original.right_paddle_up_key_down:
+            -1int
+        if right_paddle_down_key_down && !original.right_paddle_down_key_down:
+            1int
+        0int
+
+    left_paddle_top =
+        original.left_paddle_top
+        + left_paddle_movement_direction * original.paddle_dimensions.1.to_int
+
+    right_paddle_top =
+        original.right_paddle_top
+        + right_paddle_movement_direction * original.paddle_dimensions.1.to_int
+
+    with_paddles_moved_and_controls_updated = State {
+        left_paddle_top: left_paddle_top,
+        right_paddle_top: right_paddle_top,
+        left_paddle_up_key_down: left_paddle_up_key_down,
+        left_paddle_down_key_down: left_paddle_down_key_down,
+        right_paddle_up_key_down: right_paddle_up_key_down,
+        right_paddle_down_key_down: right_paddle_down_key_down,
+        ...original,
+    }
+    
+    time =@ canvas.time
+    delta_time = (time - original.time).to_seconds
+    ball_dx = (original.ball_vx * delta_time).to_int
+    ball_dy = (original.ball_vy * delta_time).to_int
+    ball_x = original.ball_topleft.0 + ball_dx
+    ball_y = original.ball_topleft.1 + ball_dy
+
+    with_ball_moved = State {
+        ball_topleft: [ball_x, ball_y],
+        ...with_paddles_moved_and_controls_updated,
+    }
+
+    if with_ball_moved.ball_topleft.0 < -2int * original.ball_radius.to_int:
+        rand @= canvas.random
+        ball_direction = math.Radians(rand * 2f64 * math.pi)
+        ball_speed = (3uint * ball_radius).to_f64
+        pure State[
+            right_score: original.right_score + 1uint,
+            ball_topleft: [
+                original.dimensions.0 / 2int - original.ball_radius.to_int,
+                original.dimensions.1 / 2int - original.ball_radius.to_int,
+            ],
+            ball_vx: PixelsPerSecond(ball_speed * ball_direction.cos()),
+            ball_vx: PixelsPerSecond(ball_speed * ball_direction.sin()),
+            ...with_ball_moved,
+        ]
+
+    if with_ball_moved.ball_topleft.0 > original.dimensions.0:
+        rand @= canvas.random
+        ball_direction = math.Radians(rand * 2f64 * math.pi)
+        ball_speed = (3uint * ball_radius).to_f64
+        pure State[
+            left_score: original.left_score + 1uint,
+            ball_topleft: [
+                original.dimensions.0 / 2int - original.ball_radius.to_int,
+                original.dimensions.1 / 2int - original.ball_radius.to_int,
+            ],
+            ball_vx: PixelsPerSecond(ball_speed * ball_direction.cos()),
+            ball_vx: PixelsPerSecond(ball_speed * ball_direction.sin()),
+            ...with_ball_moved,
+        ]
+
+    ball_vx =
+        if is_ball_touching_left_paddle(with_ball_moved) | is_ball_touching_right_paddle(with_ball_moved):
+            with_ball_moved.ball_vx * -1f64
+        with_ball_moved.ball_vx
+
+    ball_vy =
+        if with_ball_moved.ball_topleft.1 < 0 | with_ball_moved.ball_topleft.1 > original.dimensions.1.to_int - 2int * original.ball_radius.to_int:
+            with_ball_moved.ball_vy * -1f64
+        with_ball_moved.ball_vy
+
+    pure State {
+        ball_vx: ball_vx,
+        ball_vy: ball_vy,
+        ...with_ball_moved,
+    }
+
+
+fun is_ball_touching_left_paddle(state: State) -> Bool:
+    ball_left = state.ball_topleft.0
+    ball_right = ball_left + state.ball_radius * 2uint
+    paddle_left = state.paddle_margin.to_int
+    paddle_right = paddle_left + state.paddle_dimensions.0.to_int
+    in_horizontal_bounds = ball_left <= paddle_right & paddle_left <= ball_right
+
+    ball_top = state.ball_topleft.1
+    ball_bottom = ball_top + state.ball_radius * 2uint
+    paddle_top = state.left_paddle_top
+    paddle_bottom = paddle_top + state.paddle_dimensions.1.to_int
+    in_vertical_bounds = ball_top <= paddle_bottom & paddle_top <= ball_bottom
+
+    in_horizontal_bounds & in_vertical_bounds
+
+fun is_ball_touching_right_paddle(state: State) -> Bool:
+    ball_left = state.ball_topleft.0
+    ball_right = ball_left + state.ball_radius * 2uint
+    paddle_right = state.dimensions.0.to_int - state.paddle_margin.to_int
+    paddle_left = paddle_right - state.paddle_dimensions.0.to_int
+    in_horizontal_bounds = ball_left <= paddle_right & paddle_left <= ball_right
+
+    ball_top = state.ball_topleft.1
+    ball_bottom = ball_top + state.ball_radius * 2uint
+    paddle_top = state.right_paddle_top
+    paddle_bottom = paddle_top + state.paddle_dimensions.1.to_int
+    in_vertical_bounds = ball_top <= paddle_bottom & paddle_top <= ball_bottom
+
+    in_horizontal_bounds & in_vertical_bounds
+
+fun render_state(state: State) -> Vec<canvas.DrawCommand>:
+    vec[
+        canvas.DrawCommand.fill_rect(
+            0int,
+            0int,
+            state.dimensions.0,
+            state.dimensions.1,
+            canvas.Color(0uint, 0uint, 0uint, 255uint),
+        ),
+        canvas.DrawCommand.fill_rect(
+            state.paddle_margin.to_int,
+            state.left_paddle_top,
+            state.paddle_dimensions.0.to_int,
+            state.paddle_dimensions.1.to_int,
+            canvas.Color(255uint, 0uint, 0uint, 255uint),
+        ),
+        canvas.DrawCommand.fill_rect(
+            state.dimensions.0.to_int - state.paddle_margin.to_int - state.paddle_dimensions.0.to_int,
+            state.right_paddle_top,
+            state.paddle_dimensions.0.to_int,
+            state.paddle_dimensions.1.to_int,
+            canvas.Color(0uint, 0uint, 255uint, 255uint),
+        ),
+        canvas.DrawCommand.fill_rect(
+            state.ball_topleft.0,
+            state.ball_topleft.1,
+            state.ball_radius * 2uint,
+            state.ball_radius * 2uint,
+            canvas.Color(255uint, 255uint, 255uint, 255uint),
+        ),
+    ]
+
+app = canvas.make_app(get_initial_state, update_state, render_state)
+
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+========================================================================================
+
+pong.app = canvas.make_app<pong.State>(pong.get_initial_state, pong.update_state, pong.render_state)
+
+// The below conversion is incomplete, but the basic idea is that
+// operations, tuple constructions, and struct/enum constructions
+// all get desugared into function calls.
+// At the end of the day, everything is a function call, a closure,
+// let binding, an extern value (e.g., `canvas.width`), or a literal.
+pong.get_initial_state = canvas.Io.op=@<std.Uint, pong.State>(
+    canvas.width,
+    closure(width: std.Uint) -> canvas.Io<pong.State> {
+        canvas.Io.op=@<std.Uint, pong.State>(
+            canvas.height,
+            closure(height: std.Uint) -> canvas.Io<pong.State> {
+                ball_radius = std.Uint.op/(width, 20uint)
+                paddle_width = ball_radius
+                paddle_height = std.Uint.op/(height, 5uint)
+                paddle_margin = paddle_width
+                canvas.Io.op=@<std.F64, pong.State>(
+                    canvas.random,
+                    closure(rand: std.F64) -> canvas.Io<pong.State> {
+                        ball_direction = std.math.Radians(F64.op*(F64.op*(rand, 2f64), std.math.pi))
+                        ball_speed = std.Uint.to_f64(std.Uint.op*(3uint, ball_radius))
+                        canvas.Io.op=@<canvas.Seconds, pong.State>(
+                            canvas.time,
+                            closure(time: canvas.Seconds) -> canvas.Io<pong.State> {
+                                canvas.Io.pure<pong.State>(pong.State(
+                                    std.tup2<Uint, Uint>(width, height),
+                                    std.tup2<Int, Int>(
+                                        (width / 2uint - ball_radius).to_int,
+                                        (height / 2uint - ball_radius).to_int,
+                                    ),
+                                    ball_radius,
+                                    (height / 2uint - paddle_height / 2uint).to_int,
+                                    (height / 2uint - paddle_height / 2uint).to_int,
+                                    paddle_margin,
+                                    [paddle_width, paddle_height],
+                                    0uint,
+                                    0uint,
+                                    canvas.time,
+                                    pong.PixelsPerSecond(ball_speed * ball_direction.cos()),
+                                    pong.PixelsPerSecond(ball_speed * ball_direction.sin()),
+                                    false,
+                                    false,
+                                    false,
+                                    false,
+                                ))
+                            }
+                        )
+                    }
+                )
+            }
+        )
+    }
+)
